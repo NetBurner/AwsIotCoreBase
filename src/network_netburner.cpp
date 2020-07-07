@@ -32,8 +32,6 @@
 #include "aws-src/include/aws_iot_error.h"
 #include "aws-src/include/network_interface.h"
 
-void SSL_ClientReadyCert( char * certPEM, char *keyPEM );
-
 extern tick_t TimeTick;
 
 extern const int ms_per_tick = 1000 / TICKS_PER_SECOND;
@@ -73,7 +71,7 @@ IoT_Error_t iot_tls_init(Network *pNetwork, char *pRootCALocation, char *pDevice
 IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *TLSParams)
 {
     iprintf("Public Key: %s\n", pNetwork->tlsConnectParams.pDevicePublicKey);
-    SSL_ClientReadyCert(pNetwork->tlsConnectParams.pDevicePublicKey, pNetwork->tlsConnectParams.pDevicePrivateKey);
+    SSL_ClientReadyCert((const unsigned char *)pNetwork->tlsConnectParams.pDevicePublicKey, (const unsigned char *)pNetwork->tlsConnectParams.pDevicePrivateKey);
 
     char pDestinationURL[500];
     uint16_t port = pNetwork->tlsConnectParams.DestinationPort;
@@ -100,11 +98,11 @@ IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *TLSParams)
     case TCP_ERR_CON_ABORT:
         return TCP_CONNECTION_ERROR;
     case SSL_ERROR_FAILED_NEGOTIATION:
-    case SSL_ERROR_HASH_FAILED:
-    case SSL_ERROR_WRITE_FAIL:
     case SSL_ERROR_CERTIFICATE_UNKNOWN:
     case SSL_ERROR_CERTIFICATE_NAME_FAILED:
     case SSL_ERROR_CERTIFICATE_VERIFY_FAILED:
+    case SSL_ERROR_HANDSHAKE_INCOMPLETE:
+    case SSL_ERROR_UNABLE_TO_LOAD_CIPHERS:
         return SSL_CONNECTION_ERROR;
     default:
         return SUCCESS;
