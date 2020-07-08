@@ -42,6 +42,9 @@
 #include <tcp.h>
 
 #include "post-record-data.h"
+#include "aws-src/include/aws_iot_mqtt_client_interface.h"
+
+extern AWS_IoT_Client client;
 
 extern "C"
 {
@@ -98,10 +101,15 @@ void UserMain(void *pd)
 
     iprintf("Application started\n");
 
+    uint16_t count = 0;
     while (1)
     {
         // Post our record data
-        PostRecordData();
-        OSTimeDly(TICKS_PER_SECOND * 5);
+        aws_iot_mqtt_yield(&client, 100);
+        if((count++ % 5) == 0)
+        {
+            PostRecordData();
+        }
+        OSTimeDly(TICKS_PER_SECOND);
     }
 }
