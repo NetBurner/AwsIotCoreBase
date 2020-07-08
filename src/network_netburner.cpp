@@ -71,6 +71,7 @@ IoT_Error_t iot_tls_init(Network *pNetwork, char *pRootCALocation, char *pDevice
 IoT_Error_t iot_tls_connect(Network *pNetwork, TLSConnectParams *TLSParams)
 {
     iprintf("Public Key: %s\n", pNetwork->tlsConnectParams.pDevicePublicKey);
+    SslInit();
     SSL_ClientReadyCert((const unsigned char *)pNetwork->tlsConnectParams.pDevicePublicKey, (const unsigned char *)pNetwork->tlsConnectParams.pDevicePrivateKey);
 
     char pDestinationURL[500];
